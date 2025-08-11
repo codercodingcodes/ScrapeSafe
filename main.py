@@ -41,8 +41,10 @@ def getObstacleInRegion():
             result.append(row)
         conn.close()
         return result
+    else:
+        conn.close()
 @app.route("/obstacles",methods=["POST"])
-def getObstacleInRegion():
+def addObstacle():
     conn = get_connection()
     if request.method == "POST" and conn:
         city = request.form.get('city')
@@ -62,6 +64,9 @@ def getObstacleInRegion():
         ))
         conn.close()
         return Response("posted",status=200)
+    else:
+        conn.close()
+
 
 
 
