@@ -48,12 +48,23 @@ def getObstacleInRegion():
 def addObstacle():
     conn = get_connection()
     if request.method == "POST" and conn:
-        print(request)
         region = request.form.get('region')
         country = request.form.get('country')
         longitude = request.form.get('longitude')
         latitude = request.form.get('latitude')
         t = request.form.get('type')
+        print(region,country,longitude,latitude,t)
+        print("INSERT INTO {name} {columns} VALUES {values}".format(
+            name=DB_NAME,
+            columns=DB_COLUMN,
+            values=DB_FORMAT.format(
+                region=region,
+                longitude=longitude,
+                latitude=latitude,
+                type=t,
+                country=country
+            )
+        ))
         curr = conn.cursor()
         curr.execute("INSERT INTO {name} {columns} VALUES {values}".format(
             name=DB_NAME,
