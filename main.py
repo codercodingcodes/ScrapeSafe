@@ -5,8 +5,8 @@ from urllib.parse import urlparse
 app = Flask(__name__)
 
 DB_NAME = "scrapesafe.obstacles"
-DB_COLUMN = "(type,longitude,latitude,region)"
-DB_FORMAT = "({type},{longitude},{latitude},{region})"
+DB_COLUMN = "(type,longitude,latitude,region,country)"
+DB_FORMAT = "({type},{longitude},{latitude},{region},{country})"
 def get_connection():
     result = urlparse("postgresql://neondb_owner:npg_Y8eVbNFOHc2i@ep-shy-pond-afxptmom-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
     username = result.username
@@ -33,8 +33,9 @@ def getObstacleInRegion():
     conn = get_connection()
     if request.method == "GET" and conn:
         region = request.args['region']
+        country = request.args['country']
         curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE region = '{region}'".format(name=DB_NAME,region=region))
+        curr.execute("SELECT * FROM {name} WHERE region = '{region}' AND country = '{country}'".format(name=DB_NAME,region=region,country=country))
         data = curr.fetchall()
         result = []
         for row in data:
@@ -48,6 +49,7 @@ def addObstacle():
     conn = get_connection()
     if request.method == "POST" and conn:
         region = request.form.get('region')
+        country = request.form.get('country')
         longitude = request.form.get('longitude')
         latitude = request.form.get('latitude')
         t = request.form.get('type')
@@ -59,7 +61,8 @@ def addObstacle():
                 region=region,
                 longitude=longitude,
                 latitude=latitude,
-                type=t
+                type=t,
+                country=country
             )
         ))
         conn.close()
