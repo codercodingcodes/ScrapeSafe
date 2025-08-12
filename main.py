@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 DB_NAME = "scrapesafe.obstacles"
 DB_COLUMN = "(type,longitude,latitude,region,country)"
-DB_FORMAT = "({type},{longitude},{latitude},{region},{country})"
+DB_FORMAT = '({type},{longitude},{latitude},"{region}","{country}")'
 def get_connection():
     result = urlparse("postgresql://neondb_owner:npg_Y8eVbNFOHc2i@ep-shy-pond-afxptmom-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
     username = result.username
