@@ -4,9 +4,12 @@ from flask import Flask, render_template, request, redirect, session, Response
 from urllib.parse import urlparse
 app = Flask(__name__)
 
-DB_NAME = "scrapesafe.obstacles"
-DB_COLUMN = '("type","longitude","latitude","region","country")'
-DB_FORMAT = "({type},{longitude},{latitude},'{region}','{country}')"
+DB_OBST_NAME = "scrapesafe.obstacles"
+DB_ROAD_NAME = "scrapesafe.obstacles"
+DB_OBST_COLUMN = '("type","longitude","latitude","region","country")'
+DB_ROAD_COLUMN = '("start_lat","start_long","end_lat","end_long")'
+DB_OBST_FORMAT = "({type},{longitude},{latitude},'{region}','{country}')"
+DB_ROAD_FORMAT = "({slat},{slong},{elat},{elong})"
 def get_connection():
     result = urlparse("postgresql://neondb_owner:npg_Y8eVbNFOHc2i@ep-shy-pond-afxptmom-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
     username = result.username
@@ -35,7 +38,7 @@ def getObstacleInRegion():
         region = request.args['region']
         country = request.args['country']
         curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE region = '{region}' AND country = '{country}'".format(name=DB_NAME,region=region,country=country))
+        curr.execute("SELECT * FROM {name} WHERE region = '{region}' AND country = '{country}'".format(name=DB_OBST_NAME,region=region,country=country))
         data = curr.fetchall()
         result = []
         for row in data:
@@ -59,9 +62,9 @@ def addObstacle():
         BEGIN;
         INSERT INTO {name} {columns} VALUES {values};
         COMMIT;'''.format(
-            name=DB_NAME,
-            columns=DB_COLUMN,
-            values=DB_FORMAT.format(
+            name=DB_OBST_NAME,
+            columns=DB_OBST_COLUMN,
+            values=DB_OBST_FORMAT.format(
                 region=region,
                 longitude=longitude,
                 latitude=latitude,
@@ -69,12 +72,57 @@ def addObstacle():
                 country=country
             )
         ))
-
         conn.close()
         return Response("posted",status=200)
     else:
         conn.close()
-
+@app.route("/roads",methods=["GET"])
+def getRoadID():
+    conn = get_connection()
+    if request.method == "GET" and conn:
+        startLat = request.args['startLat']
+        startLong = request.args['startLong']
+        endLat = request.args['endLat']
+        endLong = request.args['endLong']
+        curr = conn.cursor()
+        curr.execute("SELECT * FROM {name} WHERE start_lat={slat} AND start_long={slong} AND end_lat={elat} AND end_long={elong}".format(
+            name=DB_ROAD_NAME,
+            slat=startLat,
+            slong=startLong,
+            elat=endLat,
+            elong=endLong
+        ))
+        data = curr.fetchone()
+        return data
+    else:
+        conn.close()
+@app.route("/roads",methods=["POST"])
+def addObstacle():
+    conn = get_connection()
+    if request.method == "POST" and conn:
+        startLat = request.form.get('startLat')
+        startLong = request.form.get('startLong')
+        endLat = request.form.get('endLat')
+        endLong =request.form.get('endLong')
+        print(startLat,startLong,endLat,endLong)
+        curr = conn.cursor()
+        curr.execute('''
+        BEGIN;
+        INSERT INTO {name} {columns} VALUES {values};
+        COMMIT;'''.format(
+            name=DB_OBST_NAME,
+            columns=DB_ROAD_COLUMN,
+            values=DB_ROAD_FORMAT.format(
+                slat=startLat,
+                slong=startLong,
+                elat=endLat,
+                elong=endLong
+            )
+        ))
+        conn.close()
+        return Response("posted",status=200)
+    else:
+        conn.close()
 
 
 
