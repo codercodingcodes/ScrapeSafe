@@ -54,19 +54,11 @@ def addObstacle():
         latitude = request.form.get('latitude')
         t = request.form.get('type')
         print(region,country,longitude,latitude,t)
-        print("INSERT INTO {name} {columns} VALUES {values}".format(
-            name=DB_NAME,
-            columns=DB_COLUMN,
-            values=DB_FORMAT.format(
-                region=region,
-                longitude=longitude,
-                latitude=latitude,
-                type=t,
-                country=country
-            )
-        ))
         curr = conn.cursor()
-        curr.execute("INSERT INTO {name} {columns} VALUES {values}".format(
+        curr.execute('''
+        BEGIN;
+        INSERT INTO {name} {columns} VALUES {values};
+        COMMIT;'''.format(
             name=DB_NAME,
             columns=DB_COLUMN,
             values=DB_FORMAT.format(
@@ -77,6 +69,7 @@ def addObstacle():
                 country=country
             )
         ))
+
         conn.close()
         return Response("posted",status=200)
     else:
