@@ -97,7 +97,7 @@ def getRoadID():
     else:
         conn.close()
 @app.route("/roads",methods=["POST"])
-def addObstacle():
+def addRoad():
     conn = get_connection()
     if request.method == "POST" and conn:
         startLat = request.form.get('startLat')
