@@ -6,9 +6,9 @@ app = Flask(__name__)
 
 DB_OBST_NAME = "scrapesafe.obstacles"
 DB_ROAD_NAME = "scrapesafe.obstacles"
-DB_OBST_COLUMN = '("type","longitude","latitude","region","country")'
+DB_OBST_COLUMN = '("type","road","region","country")'
 DB_ROAD_COLUMN = '("start_lat","start_long","end_lat","end_long")'
-DB_OBST_FORMAT = "({type},{longitude},{latitude},'{region}','{country}')"
+DB_OBST_FORMAT = "({type},{road},{region},{country})"
 DB_ROAD_FORMAT = "({slat},{slong},{elat},{elong})"
 def get_connection():
     result = urlparse("postgresql://neondb_owner:npg_Y8eVbNFOHc2i@ep-shy-pond-afxptmom-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
@@ -53,10 +53,9 @@ def addObstacle():
     if request.method == "POST" and conn:
         region = request.form.get('region')
         country = request.form.get('country')
-        longitude = request.form.get('longitude')
-        latitude = request.form.get('latitude')
+        road = request.form.get('road')
         t = request.form.get('type')
-        print(region,country,longitude,latitude,t)
+        print(region,country,road,t)
         curr = conn.cursor()
         curr.execute('''
         BEGIN;
@@ -66,8 +65,7 @@ def addObstacle():
             columns=DB_OBST_COLUMN,
             values=DB_OBST_FORMAT.format(
                 region=region,
-                longitude=longitude,
-                latitude=latitude,
+                road=road,
                 type=t,
                 country=country
             )
