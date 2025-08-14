@@ -32,7 +32,7 @@ def main():
     name = os.environ.get("NAME", "World")
     return f"Hello {name}!"
 @app.route("/obstacles",methods=["POST","GET"])
-def addObstacle():
+def obstacleDB():
     conn = get_connection()
     if request.method == "POST" and conn:
         region = "ARRAY"+request.form.get('region')
@@ -56,7 +56,7 @@ def addObstacle():
         ))
         conn.close()
         return Response("posted",status=200)
-    elif request.method == "GET" and conn:
+    elif conn:
         region = request.args['region']
         country = request.args['country']
         curr = conn.cursor()
@@ -70,7 +70,7 @@ def addObstacle():
     else:
         conn.close()
 @app.route("/roads",methods=["POST","GET"])
-def addRoad():
+def roadDB():
     conn = get_connection()
     if request.method == "POST" and conn:
         startLat = request.form.get('startLat')
@@ -94,7 +94,7 @@ def addRoad():
         ))
         conn.close()
         return Response("posted",status=200)
-    elif request.method == "GET" and conn:
+    elif conn:
         startLat = request.args['startLat']
         startLong = request.args['startLong']
         endLat = request.args['endLat']
