@@ -107,7 +107,7 @@ def roadDB():
             elat=endLat,
             elong=endLong
         ))
-        data = curr.fetchone()
+        data = curr.fetchall()
         return data
     else:
         conn.close()
