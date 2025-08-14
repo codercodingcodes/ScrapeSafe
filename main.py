@@ -97,8 +97,8 @@ def roadDB():
     elif request.method == "GET" and conn:
         startLat = request.args.get('startLat')
         startLong = request.args.get('startLong')
-        endLat = request.args['endLat']
-        endLong = request.args['endLong']
+        endLat = request.args.get('endLat')
+        endLong = request.args.get('endLong')
         curr = conn.cursor()
         curr.execute("SELECT * FROM {name} WHERE start_lat={slat} AND start_long={slong} AND end_lat={elat} AND end_long={elong}".format(
             name=DB_ROAD_NAME,
