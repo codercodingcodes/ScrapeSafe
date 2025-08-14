@@ -57,10 +57,10 @@ def obstacleDB():
         conn.close()
         return Response("posted",status=200)
     elif request.method == "GET" and conn:
-        region = request.args['region']
-        country = request.args['country']
+        region = request.args.get('region')
+        country = request.args.get('country')
         curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE region = '{region}' AND country = '{country}'".format(name=DB_OBST_NAME,region=region,country=country))
+        curr.execute("SELECT * FROM {name} WHERE '{region}' = ANY(region) AND '{country}' = ANY(country)".format(name=DB_OBST_NAME,region=region,country=country))
         data = curr.fetchall()
         result = []
         for row in data:
@@ -95,8 +95,8 @@ def roadDB():
         conn.close()
         return Response("posted",status=200)
     elif request.method == "GET" and conn:
-        startLat = request.args['startLat']
-        startLong = request.args['startLong']
+        startLat = request.args.get('startLat')
+        startLong = request.args.get('startLong')
         endLat = request.args['endLat']
         endLong = request.args['endLong']
         curr = conn.cursor()
