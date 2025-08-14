@@ -61,6 +61,7 @@ def addObstacle():
                 fregion += '"'+region[i]+'"'
             else:
                 fregion += ',"' + region[i] + '"'
+            i+=1
         fregion += "}"
         i = 0
         while i < len(country):
@@ -68,6 +69,7 @@ def addObstacle():
                 fcountry += '"' + country[i] + '"'
             else:
                 fcountry += ',"' + country[i] + '"'
+            i+=1
         fcountry += "}"
         road = request.form.get('road')
         t = request.form.get('type')
