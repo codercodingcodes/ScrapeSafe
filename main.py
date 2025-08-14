@@ -31,8 +31,24 @@ def main():
     """Example Hello World route."""
     name = os.environ.get("NAME", "World")
     return f"Hello {name}!"
-@app.route("/obstacles",methods=["POST","GET"])
-def obstacleDB():
+@app.route("/getObstacles",methods=["GET"])
+def obstacleGET():
+    conn = get_connection()
+    if request.method == "GET" and conn:
+        region = request.args['region']
+        country = request.args['country']
+        curr = conn.cursor()
+        curr.execute("SELECT * FROM {name} WHERE region = '{region}' AND country = '{country}'".format(name=DB_OBST_NAME,region=region,country=country))
+        data = curr.fetchall()
+        result = []
+        for row in data:
+            result.append(row)
+        conn.close()
+        return result
+    else:
+        conn.close()
+@app.route("/obstacles",methods=["POST"])
+def obstaclePOST():
     conn = get_connection()
     if request.method == "POST" and conn:
         region = "ARRAY"+request.form.get('region')
@@ -56,17 +72,27 @@ def obstacleDB():
         ))
         conn.close()
         return Response("posted",status=200)
-    elif conn:
-        region = request.args['region']
-        country = request.args['country']
-        curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE region = '{region}' AND country = '{country}'".format(name=DB_OBST_NAME,region=region,country=country))
-        data = curr.fetchall()
-        result = []
-        for row in data:
-            result.append(row)
+    else:
         conn.close()
-        return result
+@app.route("/getRoads",methods=["GET"])
+def roadGET():
+    conn = get_connection()
+    if request.method == "GET" and conn:
+        startLat = request.args['startLat']
+        startLong = request.args['startLong']
+        endLat = request.args['endLat']
+        endLong = request.args['endLong']
+        curr = conn.cursor()
+        curr.execute(
+            "SELECT * FROM {name} WHERE start_lat={slat} AND start_long={slong} AND end_lat={elat} AND end_long={elong}".format(
+                name=DB_ROAD_NAME,
+                slat=startLat,
+                slong=startLong,
+                elat=endLat,
+                elong=endLong
+            ))
+        data = curr.fetchone()
+        return data
     else:
         conn.close()
 @app.route("/roads",methods=["POST","GET"])
@@ -94,21 +120,6 @@ def roadDB():
         ))
         conn.close()
         return Response("posted",status=200)
-    elif conn:
-        startLat = request.args['startLat']
-        startLong = request.args['startLong']
-        endLat = request.args['endLat']
-        endLong = request.args['endLong']
-        curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE start_lat={slat} AND start_long={slong} AND end_lat={elat} AND end_long={elong}".format(
-            name=DB_ROAD_NAME,
-            slat=startLat,
-            slong=startLong,
-            elat=endLat,
-            elong=endLong
-        ))
-        data = curr.fetchone()
-        return data
     else:
         conn.close()
 
