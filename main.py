@@ -55,7 +55,7 @@ def addObstacle():
         country = request.form.get('country')
         road = request.form.get('road')
         t = request.form.get('type')
-        print(region,country,road,t)
+        print(region[0],country[0],road,  t)
         curr = conn.cursor()
         curr.execute('''
         BEGIN;
@@ -64,10 +64,10 @@ def addObstacle():
             name=DB_OBST_NAME,
             columns=DB_OBST_COLUMN,
             values=DB_OBST_FORMAT.format(
-                region=region,
-                road=road,
-                type=t,
-                country=country
+                region=str(region),
+                road=str(road),
+                type=str(t),
+                country=str(country)
             )
         ))
         conn.close()
@@ -108,7 +108,7 @@ def addRoad():
         BEGIN;
         INSERT INTO {name} {columns} VALUES {values};
         COMMIT;'''.format(
-            name=DB_OBST_NAME,
+            name=DB_ROAD_NAME,
             columns=DB_ROAD_COLUMN,
             values=DB_ROAD_FORMAT.format(
                 slat=startLat,
