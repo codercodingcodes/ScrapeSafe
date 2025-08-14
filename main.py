@@ -51,29 +51,29 @@ def getObstacleInRegion():
 def addObstacle():
     conn = get_connection()
     if request.method == "POST" and conn:
-        region = list(request.form.get('region'))
-        country = list(request.form.get('country'))
-        fregion = '{'
-        fcountry = '{'
-        i=0
-        while i<len(region):
-            if i==0:
-                fregion += '"'+region[i]+'"'
-            else:
-                fregion += ',"' + region[i] + '"'
-            i+=1
-        fregion += "}"
-        i = 0
-        while i < len(country):
-            if i == 0:
-                fcountry += '"' + country[i] + '"'
-            else:
-                fcountry += ',"' + country[i] + '"'
-            i+=1
-        fcountry += "}"
+        region = "ARRAY"+request.form.get('region')
+        country = "ARRAY"+request.form.get('country')
+        # fregion = '{'
+        # fcountry = '{'
+        # i=0
+        # while i<len(region):
+        #     if i==0:
+        #         fregion += '"'+region[i]+'"'
+        #     else:
+        #         fregion += ',"' + region[i] + '"'
+        #     i+=1
+        # fregion += "}"
+        # i = 0
+        # while i < len(country):
+        #     if i == 0:
+        #         fcountry += '"' + country[i] + '"'
+        #     else:
+        #         fcountry += ',"' + country[i] + '"'
+        #     i+=1
+        # fcountry += "}"
         road = request.form.get('road')
         t = request.form.get('type')
-        print(fregion,fcountry,road,t)
+        print(region,country,road,t)
         curr = conn.cursor()
         curr.execute('''
         BEGIN;
@@ -82,10 +82,10 @@ def addObstacle():
             name=DB_OBST_NAME,
             columns=DB_OBST_COLUMN,
             values=DB_OBST_FORMAT.format(
-                region=fregion,
+                region=region,
                 road=road,
                 type=t,
-                country=fcountry
+                country=country
             )
         ))
         conn.close()
