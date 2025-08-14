@@ -51,6 +51,7 @@ def getObstacleInRegion():
 def addObstacle():
     conn = get_connection()
     if request.method == "POST" and conn:
+        print(request.form)
         region = request.form.get('region')
         country = request.form.get('country')
         road = request.form.get('road')
