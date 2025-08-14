@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 app = Flask(__name__)
 
 DB_OBST_NAME = "scrapesafe.obstacles"
-DB_ROAD_NAME = "scrapesafe.obstacles"
+DB_ROAD_NAME = "scrapesafe.roads"
 DB_OBST_COLUMN = '("type","road","region","country")'
 DB_ROAD_COLUMN = '("start_lat","start_long","end_lat","end_long")'
 DB_OBST_FORMAT = "({type},{road},{region},{country})"
@@ -31,46 +31,12 @@ def main():
     """Example Hello World route."""
     name = os.environ.get("NAME", "World")
     return f"Hello {name}!"
-@app.route("/obstacles",methods=["GET"])
-def getObstacleInRegion():
-    conn = get_connection()
-    if request.method == "GET" and conn:
-        region = request.args['region']
-        country = request.args['country']
-        curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE region = '{region}' AND country = '{country}'".format(name=DB_OBST_NAME,region=region,country=country))
-        data = curr.fetchall()
-        result = []
-        for row in data:
-            result.append(row)
-        conn.close()
-        return result
-    else:
-        conn.close()
-@app.route("/obstacles",methods=["POST"])
+@app.route("/obstacles",methods=["POST","GET"])
 def addObstacle():
     conn = get_connection()
     if request.method == "POST" and conn:
         region = "ARRAY"+request.form.get('region')
         country = "ARRAY"+request.form.get('country')
-        # fregion = '{'
-        # fcountry = '{'
-        # i=0
-        # while i<len(region):
-        #     if i==0:
-        #         fregion += '"'+region[i]+'"'
-        #     else:
-        #         fregion += ',"' + region[i] + '"'
-        #     i+=1
-        # fregion += "}"
-        # i = 0
-        # while i < len(country):
-        #     if i == 0:
-        #         fcountry += '"' + country[i] + '"'
-        #     else:
-        #         fcountry += ',"' + country[i] + '"'
-        #     i+=1
-        # fcountry += "}"
         road = request.form.get('road')
         t = request.form.get('type')
         print(region,country,road,t)
@@ -90,29 +56,20 @@ def addObstacle():
         ))
         conn.close()
         return Response("posted",status=200)
-    else:
-        conn.close()
-@app.route("/roads",methods=["GET"])
-def getRoadID():
-    conn = get_connection()
-    if request.method == "GET" and conn:
-        startLat = request.args['startLat']
-        startLong = request.args['startLong']
-        endLat = request.args['endLat']
-        endLong = request.args['endLong']
+    elif request.method == "GET" and conn:
+        region = request.args['region']
+        country = request.args['country']
         curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE start_lat={slat} AND start_long={slong} AND end_lat={elat} AND end_long={elong}".format(
-            name=DB_ROAD_NAME,
-            slat=startLat,
-            slong=startLong,
-            elat=endLat,
-            elong=endLong
-        ))
-        data = curr.fetchone()
-        return data
+        curr.execute("SELECT * FROM {name} WHERE region = '{region}' AND country = '{country}'".format(name=DB_OBST_NAME,region=region,country=country))
+        data = curr.fetchall()
+        result = []
+        for row in data:
+            result.append(row)
+        conn.close()
+        return result
     else:
         conn.close()
-@app.route("/roads",methods=["POST"])
+@app.route("/roads",methods=["POST","GET"])
 def addRoad():
     conn = get_connection()
     if request.method == "POST" and conn:
@@ -137,6 +94,21 @@ def addRoad():
         ))
         conn.close()
         return Response("posted",status=200)
+    elif request.method == "GET" and conn:
+        startLat = request.args['startLat']
+        startLong = request.args['startLong']
+        endLat = request.args['endLat']
+        endLong = request.args['endLong']
+        curr = conn.cursor()
+        curr.execute("SELECT * FROM {name} WHERE start_lat={slat} AND start_long={slong} AND end_lat={elat} AND end_long={elong}".format(
+            name=DB_ROAD_NAME,
+            slat=startLat,
+            slong=startLong,
+            elat=endLat,
+            elong=endLong
+        ))
+        data = curr.fetchone()
+        return data
     else:
         conn.close()
 
