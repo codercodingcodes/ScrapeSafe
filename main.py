@@ -8,7 +8,7 @@ DB_OBST_NAME = "scrapesafe.obstacles"
 DB_ROAD_NAME = "scrapesafe.roads"
 DB_OBST_COLUMN = '("type","road","region","country")'
 DB_ROAD_COLUMN = '("longitude","latitude","place_id")'
-DB_OBST_FORMAT = "({type},'{road}',{region},{country})"
+DB_OBST_FORMAT = "({type},'{road}','{region}','{country}')"
 DB_ROAD_FORMAT = "({longitude},{latitude},'{place_id}')"
 def get_connection():
     result = urlparse("postgresql://neondb_owner:npg_Y8eVbNFOHc2i@ep-shy-pond-afxptmom-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
