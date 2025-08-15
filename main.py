@@ -7,9 +7,9 @@ app = Flask(__name__)
 DB_OBST_NAME = "scrapesafe.obstacles"
 DB_ROAD_NAME = "scrapesafe.roads"
 DB_OBST_COLUMN = '("type","road","region","country")'
-DB_ROAD_COLUMN = '("start_lat","start_long","end_lat","end_long")'
+DB_ROAD_COLUMN = '("longitude","latitude","place_id")'
 DB_OBST_FORMAT = "({type},{road},{region},{country})"
-DB_ROAD_FORMAT = "({slat},{slong},{elat},{elong})"
+DB_ROAD_FORMAT = "({longitude},{latitude},'{place_id}')"
 def get_connection():
     result = urlparse("postgresql://neondb_owner:npg_Y8eVbNFOHc2i@ep-shy-pond-afxptmom-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
     username = result.username
@@ -35,8 +35,8 @@ def main():
 def obstacleDB():
     conn = get_connection()
     if request.method == "POST" and conn:
-        region = "ARRAY"+request.form.get('region')
-        country = "ARRAY"+request.form.get('country')
+        region = request.form.get('region')
+        country = request.form.get('country')
         road = request.form.get('road')
         t = request.form.get('type')
         print(region,country,road,t)
@@ -60,7 +60,7 @@ def obstacleDB():
         region = request.args.get('region')
         country = request.args.get('country')
         curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE '{region}' = ANY(region) AND '{country}' = ANY(country)".format(name=DB_OBST_NAME,region=region,country=country))
+        curr.execute("SELECT * FROM {name} WHERE region='{region}' AND country='{country}'".format(name=DB_OBST_NAME,region=region,country=country))
         data = curr.fetchall()
         result = []
         for row in data:
@@ -73,11 +73,10 @@ def obstacleDB():
 def roadDB():
     conn = get_connection()
     if request.method == "POST" and conn:
-        startLat = request.form.get('startLat')
-        startLong = request.form.get('startLong')
-        endLat = request.form.get('endLat')
-        endLong =request.form.get('endLong')
-        print(startLat,startLong,endLat,endLong)
+        longitude = request.form.get("longitude")
+        latitude = request.form.get("latitude")
+        placeID = request.form.get("placeID")
+        print(longitude,latitude,placeID)
         curr = conn.cursor()
         curr.execute('''
         BEGIN;
@@ -86,32 +85,25 @@ def roadDB():
             name=DB_ROAD_NAME,
             columns=DB_ROAD_COLUMN,
             values=DB_ROAD_FORMAT.format(
-                slat=startLat,
-                slong=startLong,
-                elat=endLat,
-                elong=endLong
+                longitude = longitude,
+                latitude = latitude,
+                place_id = placeID
             )
         ))
         conn.close()
         return Response("posted",status=200)
     elif request.method == "GET" and conn:
-        startLat = request.args.get('startLat')
-        startLong = request.args.get('startLong')
-        endLat = request.args.get('endLat')
-        endLong = request.args.get('endLong')
+        placeID = request.args.get('placeID')
         curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE start_lat={slat} AND start_long={slong} AND end_lat={elat} AND end_long={elong}".format(
-            name=DB_ROAD_NAME,
-            slat=startLat,
-            slong=startLong,
-            elat=endLat,
-            elong=endLong
-        ))
+        curr.execute("SELECT * FROM {name} WHERE place_id='{placeID}'".format(name=DB_ROAD_NAME,placeID=placeID))
         data = curr.fetchall()
-        return data
+        result = []
+        for row in data:
+            result.append(row)
+        conn.close()
+        return result
     else:
         conn.close()
-
 
 
 
