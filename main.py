@@ -62,8 +62,7 @@ def obstacleDB():
         curr = conn.cursor()
         curr.execute('''SELECT type,region,country,place_id,longitude,latitude
         FROM scrapesafe.obstacles AS o
-        INNER JOIN scrapesafe.roads AS r ON r.place_id = o.road;
-        WHERE region='{region}' AND country='{country}'''.format(name=DB_OBST_NAME,region=region,country=country))
+        INNER JOIN scrapesafe.roads AS r ON r.place_id = o.road;''')
         data = curr.fetchall()
         result = []
         for row in data:
