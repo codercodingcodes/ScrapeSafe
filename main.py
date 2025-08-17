@@ -57,12 +57,20 @@ def obstacleDB():
         conn.close()
         return Response("posted",status=200)
     elif request.method == "GET" and conn:
-        region = request.args.get('region')
-        country = request.args.get('country')
+        west = request.args.get('west')
+        east = request.args.get('east')
+        south = request.args.get('south')
+        north = request.args.get('north')
         curr = conn.cursor()
         curr.execute('''SELECT type,region,country,place_id,longitude,latitude
         FROM scrapesafe.obstacles AS o
-        INNER JOIN scrapesafe.roads AS r ON r.place_id = o.road;''')
+        INNER JOIN scrapesafe.roads AS r ON r.place_id = o.road
+        WHERE longitude > {west} AND longitude < {east} AND latitude > {south} AND latitude < {north};'''.format(
+            west=west,
+            east=east,
+            south=south,
+            north=north
+        ))
         data = curr.fetchall()
         result = []
         for row in data:
