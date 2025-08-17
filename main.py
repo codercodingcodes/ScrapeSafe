@@ -60,7 +60,10 @@ def obstacleDB():
         region = request.args.get('region')
         country = request.args.get('country')
         curr = conn.cursor()
-        curr.execute("SELECT * FROM {name} WHERE region='{region}' AND country='{country}'".format(name=DB_OBST_NAME,region=region,country=country))
+        curr.execute('''SELECT type,region,country,place_id,longitude,latitude
+        FROM scrapesafe.obstacles AS o
+        INNER JOIN scrapesafe.roads AS r ON r.place_id = o.road;
+        WHERE region='{region}' AND country='{country}'''.format(name=DB_OBST_NAME,region=region,country=country))
         data = curr.fetchall()
         result = []
         for row in data:
